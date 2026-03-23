@@ -119,18 +119,6 @@ const ServicesSection = () => {
                   {service.description}
                 </p>
 
-                {/* Interactive Button */}
-                <div className="flex items-center gap-4 mt-auto cursor-pointer">
-                  <div className="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center group-hover:border-white/20 group-hover:bg-white/10 transition-all duration-500">
-                    <ArrowUpRight 
-                      size={20} 
-                      className="text-slate-900 group-hover:text-white group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-500" 
-                    />
-                  </div>
-                  <span className="text-sm font-semibold text-slate-900 group-hover:text-white transition-colors duration-500">
-                    Pelajari lebih lanjut
-                  </span>
-                </div>
               </div>
             </motion.div>
           ))}

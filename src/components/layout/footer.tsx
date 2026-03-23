@@ -37,17 +37,6 @@ export default function Footer() {
               <a href="https://api.whatsapp.com/send/?phone=6281225837439&text&type=phone_number&app_absent=0" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Hubungi via WhatsApp</a>
             </div>
             
-            <div className="flex gap-4 pt-4">
-              <a href="#" className="p-2 bg-slate-800 rounded-full hover:bg-blue-600 hover:text-white transition-all">
-                <Linkedin size={18} />
-              </a>
-              <a href="#" className="p-2 bg-slate-800 rounded-full hover:bg-black hover:text-white transition-all">
-                <Github size={18} />
-              </a>
-              <a href="#" className="p-2 bg-slate-800 rounded-full hover:bg-sky-500 hover:text-white transition-all">
-                <Twitter size={18} />
-              </a>
-            </div>
           </div>
         </div>
 
