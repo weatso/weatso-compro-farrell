@@ -54,6 +54,23 @@ const dict = {
       id: 'Produk internal hasil rekayasa tim mandiri WEATSO — dibangun, dimiliki, dan dioperasikan sepenuhnya oleh kami.',
       en: 'Internal products engineered by WEATSO\'s in-house team — built, owned, and fully operated by us.',
     },
+    close: { id: 'Tutup', en: 'Close' },
+    archLabel: { id: 'Deskripsi Arsitektur', en: 'Architecture Description' },
+    snapshotLabel: { id: 'Snapshot Sistem', en: 'System Snapshot' },
+    linkLabel: { id: 'Tautan Eksternal', en: 'External Link' },
+  },
+  core: {
+    line1: {
+      id: 'ZERO COMPROMISE. ABSOLUTE EXECUTION.',
+      en: 'ZERO COMPROMISE. ABSOLUTE EXECUTION.',
+    },
+    body: {
+      id: 'Kami tidak melayani standar menengah. WEATSO membedah masalah operasional Anda dan membangun arsitektur digital dengan presisi absolut. Kami memberikan solusi rekayasa perangkat lunak tanpa kompromi pada keamanan, skalabilitas, dan performa.',
+      en: 'We do not serve mediocre standards. WEATSO dissects your operational problems and builds digital architecture with absolute precision. We deliver software engineering solutions with zero compromise on security, scalability, and performance.',
+    },
+  },
+  partners: {
+    tag: { id: 'Kolaborasi Strategis', en: 'Strategic Engagements' },
   },
   cta: {
     tag: { id: 'Siap Memulai?', en: 'Ready to Begin?' },
@@ -86,7 +103,15 @@ const dict = {
       en: ['< $700', '$700 - $3,500', '$3,500 - $10,000', '$10,000 - $35,000', '> $35,000', 'Not yet determined'],
     },
     next: { id: 'Lanjut', en: 'Next' },
-    submit: { id: 'Kirim & Hubungi PA', en: 'Submit & Contact PA' },
+    submit: { id: 'Kirim Spesifikasi', en: 'Submit Specification' },
+    confirmation: {
+      id: 'Spesifikasi arsitektur Anda telah kami terima.',
+      en: 'Your architecture specification has been received.',
+    },
+    confirmSub: {
+      id: 'Tim kami akan menganalisis kebutuhan Anda dan menghubungi dalam 24 jam kerja.',
+      en: 'Our team will analyze your requirements and reach out within 24 business hours.',
+    },
     back: { id: 'Kembali', en: 'Go Back' },
   },
 } as const

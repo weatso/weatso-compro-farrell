@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'export'
+  // Static export removed — full serverless/edge compute enabled
 };
 
 export default nextConfig;

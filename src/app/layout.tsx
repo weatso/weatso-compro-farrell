@@ -4,6 +4,7 @@ import "./globals.css";
 import SmoothScrollProvider from "@/components/ui/smooth-scroll";
 import { LanguageProvider } from "@/lib/i18n";
 import { ThemeProvider } from "@/lib/theme";
+import PreloaderWrapper from "@/components/ui/preloader-wrapper";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -51,6 +52,7 @@ export default function RootLayout({
       <body className="antialiased font-sans">
         <ThemeProvider>
           <LanguageProvider>
+            <PreloaderWrapper />
             <SmoothScrollProvider>{children}</SmoothScrollProvider>
           </LanguageProvider>
         </ThemeProvider>
