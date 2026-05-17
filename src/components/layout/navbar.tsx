@@ -1,249 +1,331 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence, useScroll, useMotionValueEvent, Variants } from 'framer-motion'
+import React, { useRef, useState, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { ArrowUpRight } from 'lucide-react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useGSAP } from '@gsap/react'
+import { useLanguage } from '@/lib/i18n'
+import { useTheme } from '@/lib/theme'
+
+gsap.registerPlugin(ScrollTrigger)
 
 const navLinks = [
-  { name: "Expertise", href: "/expertise" },
-  { name: "Methodology", href: "/methodology" },
-  { name: "Ventures", href: "/ventures" }
+  { id: 'models', href: '#models' },
+  { id: 'portfolio', href: '#portfolio' },
 ]
 
-const MenuToggle = ({ isOpen, toggle }: { isOpen: boolean, toggle: () => void }) => (
-  <button 
-    onClick={toggle}
-    className="relative z-50 w-12 h-12 rounded-full border border-white/10 bg-white/5 backdrop-blur-md flex items-center justify-center focus:outline-none"
-  >
-    <div className="w-5 h-5 flex flex-col justify-between items-center relative">
-      <motion.span 
-        animate={{ 
-          rotate: isOpen ? 45 : 0, 
-          y: isOpen ? 9 : 0,
-          backgroundColor: isOpen ? '#ffffff' : '#94a3b8' 
-        }}
-        transition={{ duration: 0.4, ease: [0.19, 1.0, 0.22, 1.0] }}
-        className="w-full h-[2px] block origin-center"
-      />
-      <motion.span 
-        animate={{ 
-          opacity: isOpen ? 0 : 1,
-          width: isOpen ? 0 : "100%",
-          backgroundColor: '#94a3b8'
-        }}
-        transition={{ duration: 0.3, ease: [0.19, 1.0, 0.22, 1.0] }}
-        className="h-[2px] block"
-      />
-      <motion.span 
-        animate={{ 
-          rotate: isOpen ? -45 : 0, 
-          y: isOpen ? -9 : 0,
-          backgroundColor: isOpen ? '#ffffff' : '#94a3b8'
-        }}
-        transition={{ duration: 0.4, ease: [0.19, 1.0, 0.22, 1.0] }}
-        className="w-full h-[2px] block origin-center"
-      />
-    </div>
-  </button>
-)
-
 export default function Navbar() {
+  const capsuleRef = useRef<HTMLDivElement>(null)
+  const navRef = useRef<HTMLElement>(null)
+  const linksRef = useRef<HTMLDivElement>(null)
   const [isScrolled, setIsScrolled] = useState(false)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
-  
-  const { scrollY } = useScroll()
-  const pathname = usePathname()
-  const isHomePage = pathname === '/'
+  const [isHovered, setIsHovered] = useState(false)
+  const [isMobileOpen, setIsMobileOpen] = useState(false)
+  const mobileMenuRef = useRef<HTMLDivElement>(null)
+  const mobileLinksRef = useRef<HTMLDivElement>(null)
 
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    setIsScrolled(latest > 50)
-  })
+  const { locale, setLocale, t } = useLanguage()
+  const { theme, toggleTheme, isDark } = useTheme()
 
+  // Scroll detection
   useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = 'hidden'
+    const onScroll = () => setIsScrolled(window.scrollY > 80)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  // GSAP entrance animation
+  useGSAP(() => {
+    gsap.fromTo(
+      navRef.current,
+      { y: -100, opacity: 0 },
+      { y: 0, opacity: 1, duration: 1, ease: 'power3.out', delay: 0.2 }
+    )
+  }, { scope: navRef })
+
+  // Capsule morph animation on hover (when scrolled)
+  useEffect(() => {
+    if (!capsuleRef.current || !linksRef.current) return
+
+    if (isScrolled && isHovered) {
+      gsap.to(capsuleRef.current, {
+        width: 'auto',
+        maxWidth: 600,
+        paddingLeft: 24,
+        paddingRight: 24,
+        duration: 0.5,
+        ease: 'power3.out',
+      })
+      gsap.to(linksRef.current, {
+        opacity: 1,
+        width: 'auto',
+        marginLeft: 16,
+        duration: 0.4,
+        ease: 'power3.out',
+        delay: 0.1,
+      })
+    } else if (isScrolled) {
+      gsap.to(linksRef.current, {
+        opacity: 0,
+        width: 0,
+        marginLeft: 0,
+        duration: 0.3,
+        ease: 'power3.in',
+      })
+      gsap.to(capsuleRef.current, {
+        width: 'auto',
+        maxWidth: 280,
+        paddingLeft: 20,
+        paddingRight: 20,
+        duration: 0.5,
+        ease: 'power3.out',
+        delay: 0.1,
+      })
     } else {
-      document.body.style.overflow = 'unset'
+      // At top - expanded state
+      gsap.to(capsuleRef.current, {
+        width: 'auto',
+        maxWidth: 700,
+        paddingLeft: 24,
+        paddingRight: 24,
+        duration: 0.5,
+        ease: 'power3.out',
+      })
+      gsap.to(linksRef.current, {
+        opacity: 1,
+        width: 'auto',
+        marginLeft: 16,
+        duration: 0.4,
+        ease: 'power3.out',
+      })
     }
-  }, [isMobileMenuOpen])
+  }, [isScrolled, isHovered])
 
-  const menuVariants: Variants = {
-    closed: {
-      opacity: 0,
-      clipPath: "inset(0% 0% 100% 0%)",
-      transition: { duration: 0.6, ease: [0.32, 0.72, 0, 1] }
-    },
-    open: {
-      opacity: 1,
-      clipPath: "inset(0% 0% 0% 0%)",
-      transition: { duration: 0.8, ease: [0.32, 0.72, 0, 1] }
+  // Mobile menu toggle
+  useEffect(() => {
+    if (!mobileMenuRef.current || !mobileLinksRef.current) return
+
+    if (isMobileOpen) {
+      document.body.style.overflow = 'hidden'
+      gsap.to(mobileMenuRef.current, {
+        clipPath: 'inset(0% 0% 0% 0%)',
+        duration: 0.7,
+        ease: 'power4.inOut',
+      })
+      gsap.fromTo(
+        mobileLinksRef.current.children,
+        { y: 60, opacity: 0 },
+        { y: 0, opacity: 1, stagger: 0.08, duration: 0.6, ease: 'power3.out', delay: 0.3 }
+      )
+    } else {
+      document.body.style.overflow = ''
+      gsap.to(mobileMenuRef.current, {
+        clipPath: 'inset(0% 0% 100% 0%)',
+        duration: 0.5,
+        ease: 'power3.in',
+      })
     }
-  }
-
-  const linkVariants: Variants = {
-    closed: { y: "120%", rotate: 5, opacity: 0 },
-    open: (i: number) => ({
-      y: "0%",
-      rotate: 0,
-      opacity: 1,
-      transition: { duration: 0.8, ease: [0.19, 1.0, 0.22, 1.0], delay: 0.2 + (i * 0.1) }
-    })
-  }
+  }, [isMobileOpen])
 
   return (
     <>
-      <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.8, ease: [0.19, 1.0, 0.22, 1.0] }}
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
-          isScrolled ? "pt-4 px-4 md:pt-6 md:px-8" : "pt-8 px-6 md:px-12"
-        }`}
+      <nav
+        ref={navRef}
+        className="fixed top-0 left-0 right-0 z-[100] flex justify-center pt-5 px-4 pointer-events-none"
+        style={{ opacity: 0 }}
       >
-        <div 
-          className={`mx-auto flex items-center justify-between transition-all duration-500 ${
-            isScrolled 
-              ? "max-w-4xl bg-[#0a0a0a]/40 backdrop-blur-xl border border-white/10 rounded-full px-6 py-3 shadow-[0_8px_30px_rgb(0,0,0,0.12)] -mb-[1px]" 
-              : "max-w-7xl bg-transparent px-0 py-0"
-          }`}
+        <div
+          ref={capsuleRef}
+          className="capsule pointer-events-auto flex items-center py-3 backdrop-blur-xl border transition-colors duration-300"
+          style={{
+            backgroundColor: 'var(--capsule-bg)',
+            borderColor: 'var(--border-primary)',
+            maxWidth: 700,
+            paddingLeft: 24,
+            paddingRight: 24,
+          }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
         >
           {/* Logo */}
-          <Link href="/" className="relative z-50 flex items-center group" onClick={() => setIsMobileMenuOpen(false)}>
-            <img 
-              src="/weatso.svg" 
-              alt="Weatso" 
-              className={`h-10 md:h-12 w-auto scale-[2] md:scale-[2.5] origin-left transition-all duration-300 ${
-                isScrolled || isHomePage 
-                  ? "brightness-0 invert" 
-                  : "brightness-0"
-              }`}
+          <Link href="/" className="flex-shrink-0 flex items-center">
+            <img
+              src="/weatso.svg"
+              alt="WEATSO"
+              className="h-7 w-auto transition-all duration-300"
+              style={{
+                filter: isDark ? 'brightness(0) invert(1)' : 'brightness(0)',
+                transform: 'scale(1.8)',
+                transformOrigin: 'left center',
+              }}
             />
           </Link>
 
-          <div className="hidden md:flex items-center gap-1 relative" onMouseLeave={() => setHoveredIndex(null)}>
-            {navLinks.map((link, index) => {
-              const isActive = pathname === link.href
-              const isDarkBg = isScrolled || isHomePage
-              return (
-                <Link 
-                  key={link.name} 
-                  href={link.href}
-                  onMouseEnter={() => setHoveredIndex(index)}
-                  className={`relative px-5 py-2 text-sm font-semibold tracking-wide transition-colors duration-300 ${
-                    hoveredIndex === index || isActive
-                      ? (isDarkBg ? "text-white" : "text-black")
-                      : (isDarkBg ? "text-white/70 hover:text-white" : "text-slate-500 hover:text-slate-900")
-                  }`}
-                >
-                  {hoveredIndex === index && (
-                    <motion.div
-                      layoutId="nav-pill"
-                      className="absolute inset-0 bg-white/10 rounded-full"
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    />
-                  )}
-                  {isActive && hoveredIndex !== index && (
-                     <motion.div
-                      layoutId="active-pill"
-                      className="absolute inset-0 border border-white/20 rounded-full"
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    />
-                  )}
-                  <span className="relative z-10">{link.name}</span>
-                </Link>
-              )
-            })}
+          {/* Nav Links (Hidden/Shown by GSAP) */}
+          <div
+            ref={linksRef}
+            className="hidden md:flex items-center gap-1 overflow-hidden"
+            style={{ opacity: 1 }}
+          >
+            {navLinks.map((link) => (
+              <a
+                key={link.id}
+                href={link.href}
+                className="px-4 py-1.5 text-xs font-semibold uppercase tracking-widest whitespace-nowrap rounded-full transition-colors duration-200"
+                style={{ color: 'var(--text-secondary)' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'var(--text-primary)'
+                  e.currentTarget.style.backgroundColor = 'var(--border-primary)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'var(--text-secondary)'
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                }}
+              >
+                {t('nav', link.id as 'models' | 'portfolio')}
+              </a>
+            ))}
           </div>
 
-          <div className="hidden md:block">
-            <a 
-              href="https://api.whatsapp.com/send/?phone=6281225837439&text&type=phone_number&app_absent=0" 
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`group relative overflow-hidden rounded-full px-6 py-2.5 flex items-center gap-2 transition-all duration-300 ${
-                isScrolled || isHomePage
-                  ? "bg-white text-black hover:bg-slate-200" 
-                  : "bg-slate-900 text-white hover:bg-slate-800 shadow-xl"
-              }`}
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* Language Switcher */}
+          <div className="flex items-center gap-0.5 mr-2">
+            <button
+              onClick={() => setLocale('id')}
+              className="px-2 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-200"
+              style={{
+                color: locale === 'id' ? 'var(--text-primary)' : 'var(--text-muted)',
+                backgroundColor: locale === 'id' ? 'var(--border-primary)' : 'transparent',
+              }}
             >
-              <span className="relative z-10 text-sm font-bold">Initiate</span>
-              <div className="relative z-10 w-2 h-2 rounded-full bg-blue-500 group-hover:animate-ping" />
-            </a>
+              ID
+            </button>
+            <span style={{ color: 'var(--text-muted)' }} className="text-[10px]">|</span>
+            <button
+              onClick={() => setLocale('en')}
+              className="px-2 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-200"
+              style={{
+                color: locale === 'en' ? 'var(--text-primary)' : 'var(--text-muted)',
+                backgroundColor: locale === 'en' ? 'var(--border-primary)' : 'transparent',
+              }}
+            >
+              EN
+            </button>
           </div>
 
-          <div className="md:hidden">
-            <MenuToggle isOpen={isMobileMenuOpen} toggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-200"
+            style={{ color: 'var(--text-secondary)' }}
+            aria-label="Toggle theme"
+          >
+            {isDark ? (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+              </svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+            )}
+          </button>
+
+          {/* CTA Button (desktop) */}
+          <Link
+            href="/initiate"
+            className="hidden md:flex items-center gap-2 ml-3 px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300"
+            style={{
+              backgroundColor: isDark ? '#FFFFFF' : '#000000',
+              color: isDark ? '#000000' : '#FFFFFF',
+            }}
+          >
+            {t('nav', 'initiate')}
+            <div
+              className="w-1.5 h-1.5 rounded-full animate-pulse"
+              style={{ backgroundColor: isDark ? '#3B82F6' : '#3B82F6' }}
+            />
+          </Link>
+
+          {/* Mobile Menu Toggle */}
+          <button
+            onClick={() => setIsMobileOpen(!isMobileOpen)}
+            className="md:hidden ml-2 w-9 h-9 rounded-full flex flex-col items-center justify-center gap-1.5 relative z-50"
+            style={{ border: '1px solid var(--border-primary)' }}
+            aria-label="Toggle menu"
+          >
+            <span
+              className="w-4 h-[1.5px] block transition-all duration-300 origin-center"
+              style={{
+                backgroundColor: 'var(--text-secondary)',
+                transform: isMobileOpen ? 'rotate(45deg) translateY(3px)' : 'none',
+              }}
+            />
+            <span
+              className="w-4 h-[1.5px] block transition-all duration-300 origin-center"
+              style={{
+                backgroundColor: 'var(--text-secondary)',
+                transform: isMobileOpen ? 'rotate(-45deg) translateY(-3px)' : 'none',
+                opacity: isMobileOpen ? 1 : 1,
+              }}
+            />
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Full-Screen Menu */}
+      <div
+        ref={mobileMenuRef}
+        className="fixed inset-0 z-[90] md:hidden flex flex-col justify-center px-8"
+        style={{
+          backgroundColor: 'var(--bg-primary)',
+          clipPath: 'inset(0% 0% 100% 0%)',
+        }}
+      >
+        <div ref={mobileLinksRef} className="flex flex-col gap-6 mt-8">
+          {navLinks.map((link, i) => (
+            <div key={link.id} style={{ opacity: 0 }}>
+              <a
+                href={link.href}
+                onClick={() => setIsMobileOpen(false)}
+                className="flex items-baseline gap-4 text-5xl font-black font-heading tracking-tighter"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                <span className="text-xs font-mono tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                  0{i + 1}
+                </span>
+                {t('nav', link.id as 'models' | 'portfolio')}
+              </a>
+            </div>
+          ))}
+          <div style={{ opacity: 0 }}>
+            <Link
+              href="/initiate"
+              onClick={() => setIsMobileOpen(false)}
+              className="flex items-baseline gap-4 text-5xl font-black font-heading tracking-tighter"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              <span className="text-xs font-mono tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                03
+              </span>
+              {t('nav', 'initiate')}
+            </Link>
           </div>
         </div>
-      </motion.nav>
 
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            variants={menuVariants}
-            initial="closed"
-            animate="open"
-            exit="closed"
-            className="fixed inset-0 z-30 bg-[#030303] flex flex-col justify-center px-8"
-          >
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPgo8cmVjdCB3aWR0aD0iOCIgaGVpZ2h0PSI4IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDUiLz4KPHBhdGggZD0iTTAgMGg4djhIMHoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIHN0cm9rZS1vcGFjaXR5PSIwLjA1IiBzdHJva2Utd2lkdGg9IjEiLz4KPC9zdmc+')] opacity-20" />
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none translate-x-1/2 -translate-y-1/2" />
-            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-purple-600/20 rounded-full blur-[100px] pointer-events-none -translate-x-1/2 translate-y-1/2" />
-
-            <div className="relative z-10 flex flex-col gap-6 mt-16">
-              {navLinks.map((link, i) => (
-                <div key={link.name} className="overflow-hidden">
-                  <motion.div
-                    custom={i}
-                    variants={linkVariants}
-                    initial="closed"
-                    animate="open"
-                    exit="closed"
-                  >
-                    <Link 
-                      href={link.href}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="group flex items-baseline gap-4 text-5xl sm:text-7xl font-black text-white font-heading tracking-tighter"
-                    >
-                      <span className="text-sm font-mono text-blue-500 tracking-widest opacity-50 group-hover:opacity-100 transition-opacity">
-                        0{i + 1}
-                      </span>
-                      <span className="relative">
-                        {link.name}
-                        <span className="absolute bottom-2 left-0 w-full h-2 bg-blue-600 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-[0.19,1.0,0.22,1.0]" />
-                      </span>
-                    </Link>
-                  </motion.div>
-                </div>
-              ))}
-            </div>
-
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1, duration: 1 }}
-              className="absolute bottom-12 left-8 right-8 flex justify-between items-end border-t border-white/10 pt-6"
-            >
-              <div className="flex flex-col gap-2 text-white/50 text-xs tracking-widest uppercase">
-                <span>hello@weatso.com</span>
-                <span>Semarang, Indonesia</span>
-              </div>
-              <a 
-                href="https://api.whatsapp.com/send/?phone=6281225837439&text&type=phone_number&app_absent=0"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-black"
-              >
-                <ArrowUpRight size={20} />
-              </a>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        <div
+          className="absolute bottom-12 left-8 right-8 flex justify-between items-end pt-6"
+          style={{ borderTop: '1px solid var(--border-primary)' }}
+        >
+          <div className="flex flex-col gap-2 text-xs tracking-widest uppercase" style={{ color: 'var(--text-muted)' }}>
+            <span>hello@weatso.com</span>
+            <span>Semarang, Indonesia</span>
+          </div>
+        </div>
+      </div>
     </>
   )
 }

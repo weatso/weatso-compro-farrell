@@ -1,54 +1,104 @@
-import Link from "next/link";
-import { Github, Linkedin, Twitter, Mail } from "lucide-react";
+'use client'
+
+import Link from 'next/link'
+import { useLanguage } from '@/lib/i18n'
+import { useTheme } from '@/lib/theme'
 
 export default function Footer() {
+  const { t } = useLanguage()
+  const { isDark } = useTheme()
+
   return (
-    <footer className="bg-[#0F172A] border-t border-slate-800 text-slate-300 py-12 md:py-16">
-      <div className="container mx-auto px-6">
+    <footer
+      className="py-16 md:py-20"
+      style={{
+        backgroundColor: 'var(--bg-secondary)',
+        borderTop: '1px solid var(--border-primary)',
+      }}
+    >
+      <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-          
-          {/* COLUMN 1: BRAND */}
+          {/* Brand */}
           <div className="space-y-4">
-            <Link href="/" className="font-heading font-bold text-2xl tracking-tight text-white block">
+            <Link
+              href="/"
+              className="font-heading font-black text-2xl tracking-tighter block"
+              style={{ color: 'var(--text-primary)' }}
+            >
               WEATSO.
             </Link>
-            <p className="text-slate-400 font-light max-w-xs leading-relaxed">
-              Transforming ideas into digital reality. 
-              Membangun masa depan digital dengan presisi dan inovasi.
+            <p
+              className="font-light max-w-xs leading-relaxed text-sm"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              {t('footer', 'tagline')}
             </p>
           </div>
 
-          {/* COLUMN 2: QUICK LINKS */}
+          {/* Navigation */}
           <div className="space-y-4">
-            <h3 className="font-bold text-white tracking-wide uppercase text-sm">Quick Links</h3>
+            <h3
+              className="font-bold tracking-wide uppercase text-xs"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              {t('footer', 'nav')}
+            </h3>
             <ul className="space-y-2">
-              <li><Link href="#services" className="hover:text-blue-400 transition-colors">Services</Link></li>
-              <li><Link href="#ventures" className="hover:text-blue-400 transition-colors">Ventures</Link></li>
-              <li><Link href="#about" className="hover:text-blue-400 transition-colors">About Us</Link></li>
-              <li><Link href="#contact" className="hover:text-blue-400 transition-colors">Contact</Link></li>
+              <li>
+                <a
+                  href="#models"
+                  className="text-sm transition-colors duration-200 hover:underline"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  {t('nav', 'models')}
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#portfolio"
+                  className="text-sm transition-colors duration-200 hover:underline"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  {t('nav', 'portfolio')}
+                </a>
+              </li>
+              <li>
+                <Link
+                  href="/initiate"
+                  className="text-sm transition-colors duration-200 hover:underline"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  {t('nav', 'initiate')}
+                </Link>
+              </li>
             </ul>
           </div>
 
-          {/* COLUMN 3: CONTACT */}
+          {/* Contact */}
           <div className="space-y-4">
-            <h3 className="font-bold text-white tracking-wide uppercase text-sm">Get in Touch</h3>
-            <div className="flex items-center gap-3">
-              <Mail size={18} className="text-blue-500" />
-              <a href="https://api.whatsapp.com/send/?phone=6281225837439&text&type=phone_number&app_absent=0" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Hubungi via WhatsApp</a>
+            <h3
+              className="font-bold tracking-wide uppercase text-xs"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              {t('footer', 'contact')}
+            </h3>
+            <div className="flex flex-col gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+              <span>hello@weatso.com</span>
+              <span>Semarang, Indonesia</span>
             </div>
-            
           </div>
         </div>
 
-        {/* BOTTOM BAR */}
-        <div className="mt-12 pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
-          <p>© {new Date().getFullYear()} Weatso Holding. Built with passion in Indonesia.</p>
-          <div className="flex gap-6">
-            <Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link>
-            <Link href="#" className="hover:text-white transition-colors">Terms of Service</Link>
-          </div>
+        <div
+          className="mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs"
+          style={{
+            borderTop: '1px solid var(--border-primary)',
+            color: 'var(--text-muted)',
+          }}
+        >
+          <p>© {new Date().getFullYear()} WEATSO. {t('footer', 'rights')}</p>
         </div>
       </div>
     </footer>
-  );
+  )
 }

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google"; // Switch to Inter & Outfit (modern tech feel)
+import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import SmoothScrollProvider from "@/components/ui/smooth-scroll";
+import { LanguageProvider } from "@/lib/i18n";
+import { ThemeProvider } from "@/lib/theme";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -17,13 +19,21 @@ const outfit = Outfit({
 
 export const metadata: Metadata = {
   title: {
-    default: "Weatso Holding - Transformasi Digital & Solusi Teknologi",
-    template: "%s | Weatso Holding"
+    default: "WEATSO — Engineering Definitive Solutions",
+    template: "%s | WEATSO",
   },
-  description: "IT Consultant dan Web Development profesional. Spesialisasi dalam Cloud Solutions, System Integration, dan Digital Product Development.",
-  keywords: ["Web Development", "IT Consultant", "Cloud Solutions", "System Integration", "Software House Indonesia", "Weatso"],
-  authors: [{ name: "Weatso Team" }],
-  creator: "Weatso Holding",
+  description:
+    "Zero Compromise. Absolute Execution. We engineer custom software ecosystems that halt operational leaks and secure your digital dominance.",
+  keywords: [
+    "Software Engineering",
+    "Custom Software",
+    "Digital Infrastructure",
+    "Enterprise Solutions",
+    "WEATSO",
+    "Software House Indonesia",
+  ],
+  authors: [{ name: "WEATSO" }],
+  creator: "WEATSO",
 };
 
 export default function RootLayout({
@@ -34,12 +44,16 @@ export default function RootLayout({
   return (
     <html
       lang="id"
+      data-theme="dark"
       className={`${inter.variable} ${outfit.variable}`}
+      suppressHydrationWarning
     >
-      <body className="antialiased font-sans bg-white text-slate-900 selection:bg-blue-100 selection:text-blue-900">
-        <SmoothScrollProvider>
-          {children}
-        </SmoothScrollProvider>
+      <body className="antialiased font-sans">
+        <ThemeProvider>
+          <LanguageProvider>
+            <SmoothScrollProvider>{children}</SmoothScrollProvider>
+          </LanguageProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
