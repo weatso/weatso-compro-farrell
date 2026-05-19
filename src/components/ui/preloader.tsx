@@ -1,25 +1,17 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 
 export default function Preloader({ onComplete }: { onComplete: () => void }) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const pathRef = useRef<SVGPathElement>(null)
+  const loadingRef = useRef<HTMLDivElement>(null)
+  const welcomeRef = useRef<HTMLDivElement>(null)
+  const barRef = useRef<HTMLDivElement>(null)
   const [done, setDone] = useState(false)
 
   useGSAP(() => {
-    const path = pathRef.current
-    if (!path) return
-
-    const length = path.getTotalLength()
-    gsap.set(path, {
-      strokeDasharray: length,
-      strokeDashoffset: length,
-      fill: 'transparent',
-    })
-
     const tl = gsap.timeline({
       onComplete: () => {
         setDone(true)
@@ -27,28 +19,24 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
       },
     })
 
-    // Phase 1: Draw the W path (line-drawing effect)
-    tl.to(path, {
-      strokeDashoffset: 0,
-      duration: 1,
-      ease: 'power2.inOut',
-    })
+    // Phase 1: Show "Loading..." with progress bar
+    tl.fromTo(loadingRef.current, { opacity: 0 }, { opacity: 1, duration: 0.3 })
+    tl.fromTo(barRef.current, { scaleX: 0 }, { scaleX: 1, duration: 1.2, ease: 'power2.inOut' }, '-=0.1')
 
-    // Phase 2: Fill the logo
-    tl.to(path, {
-      fill: 'var(--text-primary)',
-      stroke: 'transparent',
-      duration: 0.5,
-      ease: 'power2.out',
-    })
+    // Phase 2: Hide loading, show welcome
+    tl.to(loadingRef.current, { opacity: 0, y: -20, duration: 0.3, ease: 'power2.in' })
+    tl.fromTo(welcomeRef.current,
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }
+    )
 
-    // Phase 3: Hold briefly
-    tl.to({}, { duration: 0.3 })
+    // Phase 3: Hold
+    tl.to({}, { duration: 0.6 })
 
-    // Phase 4: Lift preloader up
+    // Phase 4: Slide up to reveal page
     tl.to(containerRef.current, {
       yPercent: -100,
-      duration: 0.8,
+      duration: 0.7,
       ease: 'power4.inOut',
     })
   }, { scope: containerRef })
@@ -61,21 +49,25 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
       className="fixed inset-0 z-[9998] flex items-center justify-center"
       style={{ backgroundColor: 'var(--bg-primary)' }}
     >
-      <svg
-        viewBox="0 0 120 80"
-        className="w-32 md:w-40"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          ref={pathRef}
-          d="M 10,15 L 25,65 L 40,30 L 55,65 L 70,30 L 85,65 L 100,15"
-          fill="transparent"
-          stroke="var(--text-primary)"
-          strokeWidth="4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      {/* Loading state */}
+      <div ref={loadingRef} className="absolute flex flex-col items-center gap-4" style={{ opacity: 0 }}>
+        <p className="text-xs font-bold uppercase tracking-[0.4em]" style={{ color: 'var(--text-muted)' }}>
+          Loading
+        </p>
+        <div className="w-32 h-[2px] rounded-full overflow-hidden" style={{ backgroundColor: 'var(--border-primary)' }}>
+          <div ref={barRef} className="h-full accent-line origin-left" style={{ transform: 'scaleX(0)' }} />
+        </div>
+      </div>
+
+      {/* Welcome state */}
+      <div ref={welcomeRef} className="absolute flex flex-col items-center gap-3" style={{ opacity: 0 }}>
+        <p className="text-xs font-bold uppercase tracking-[0.4em]" style={{ color: 'var(--text-muted)' }}>
+          Welcome to
+        </p>
+        <h1 className="text-4xl md:text-6xl font-heading font-black tracking-tighter text-accent">
+          WEATSO.
+        </h1>
+      </div>
     </div>
   )
 }

@@ -6,7 +6,9 @@ export type Locale = 'id' | 'en'
 
 const dict = {
   nav: {
-    models: { id: 'Model Bisnis', en: 'Business Models' },
+    principle: { id: 'Prinsip', en: 'Principle' },
+    models: { id: 'Model', en: 'Models' },
+    verdict: { id: 'Testimoni', en: 'Verdict' },
     portfolio: { id: 'Portofolio', en: 'Portfolio' },
     initiate: { id: 'Mulai Proyek', en: 'Initiate' },
   },
@@ -61,13 +63,27 @@ const dict = {
   },
   core: {
     line1: {
-      id: 'ZERO COMPROMISE. ABSOLUTE EXECUTION.',
-      en: 'ZERO COMPROMISE. ABSOLUTE EXECUTION.',
+      id: 'PRINSIP KAMI',
+      en: 'OUR PRINCIPLE',
     },
-    body: {
-      id: 'Kami tidak melayani standar menengah. WEATSO membedah masalah operasional Anda dan membangun arsitektur digital dengan presisi absolut. Kami memberikan solusi rekayasa perangkat lunak tanpa kompromi pada keamanan, skalabilitas, dan performa.',
-      en: 'We do not serve mediocre standards. WEATSO dissects your operational problems and builds digital architecture with absolute precision. We deliver software engineering solutions with zero compromise on security, scalability, and performance.',
+    slides: {
+      id: [
+        'Kami tidak melayani standar menengah. Presisi absolut, tanpa kompromi.',
+        'Setiap baris kode adalah keputusan arsitektur. Kami tidak menulis kode — kami merekayasa fondasi.',
+        'Infrastruktur yang benar tidak perlu dirombak. Sekali bangun, selamanya berdiri.',
+      ],
+      en: [
+        'We do not serve mediocre standards. Absolute precision, zero compromise.',
+        'Every line of code is an architectural decision. We don\'t write code — we engineer foundations.',
+        'Infrastructure built right never needs rebuilding. Built once, stands forever.',
+      ],
     },
+  },
+  stats: {
+    est: { id: 'Didirikan', en: 'Established' },
+    projects: { id: 'Proyek Terkirim', en: 'Projects Delivered' },
+    ecosystems: { id: 'Ekosistem Produk', en: 'Product Ecosystems' },
+    support: { id: 'Dukungan Teknis', en: 'Technical Support' },
   },
   partners: {
     tag: { id: 'Kolaborasi Strategis', en: 'Strategic Engagements' },
@@ -99,20 +115,29 @@ const dict = {
     step2Placeholder: { id: 'Deskripsikan keluhan atau kebutuhan sistem Anda secara detail...', en: 'Describe your system complaints or needs in detail...' },
     step3Label: { id: 'Berapa anggaran Anda?', en: 'What is your budget?' },
     step3Options: {
-      id: ['< Rp 10 Juta', 'Rp 10 - 50 Juta', 'Rp 50 - 150 Juta', 'Rp 150 - 500 Juta', '> Rp 500 Juta', 'Belum ditentukan'],
-      en: ['< $700', '$700 - $3,500', '$3,500 - $10,000', '$10,000 - $35,000', '> $35,000', 'Not yet determined'],
+      id: ['< Rp 10 Juta', 'Rp 10 - 50 Juta', 'Rp 50 - 150 Juta', 'Rp 150 - 500 Juta', '> Rp 500 Juta'],
+      en: ['< $700', '$700 - $3,500', '$3,500 - $10,000', '$10,000 - $35,000', '> $35,000'],
+    },
+    step4Label: { id: 'Estimasi waktu pengerjaan?', en: 'Estimated project timeline?' },
+    step4Options: {
+      id: ['< 2 Minggu', '1 Bulan', '2-3 Bulan', '3-6 Bulan', '> 6 Bulan', 'Fleksibel'],
+      en: ['< 2 Weeks', '1 Month', '2-3 Months', '3-6 Months', '> 6 Months', 'Flexible'],
     },
     next: { id: 'Lanjut', en: 'Next' },
     submit: { id: 'Kirim Spesifikasi', en: 'Submit Specification' },
     confirmation: {
-      id: 'Spesifikasi arsitektur Anda telah kami terima.',
-      en: 'Your architecture specification has been received.',
+      id: 'Terima kasih. Spesifikasi Anda telah kami terima.',
+      en: 'Thank you. Your specification has been received.',
     },
     confirmSub: {
-      id: 'Tim kami akan menganalisis kebutuhan Anda dan menghubungi dalam 24 jam kerja.',
-      en: 'Our team will analyze your requirements and reach out within 24 business hours.',
+      id: 'Tim arsitektur kami akan menganalisis kebutuhan Anda dan menghubungi dalam 24 jam kerja.',
+      en: 'Our architecture team will analyze your requirements and reach out within 24 business hours.',
     },
     back: { id: 'Kembali', en: 'Go Back' },
+  },
+  verdict: {
+    sectionTag: { id: 'The Verdict', en: 'The Verdict' },
+    sectionTitle: { id: 'Apa Kata Mereka', en: 'What They Say' },
   },
 } as const
 
@@ -130,7 +155,7 @@ interface I18nContextType {
 const I18nContext = createContext<I18nContextType | null>(null)
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocale] = useState<Locale>('id')
+  const [locale, setLocale] = useState<Locale>('en')
 
   const t = useCallback(
     <K1 extends keyof Dict, K2 extends keyof Dict[K1]>(section: K1, key: K2) => {

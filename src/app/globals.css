@@ -9,7 +9,7 @@
    THEME SYSTEM — Attribute-based (data-theme)
    ============================================ */
 
-[data-theme="dark"] {
+:root, [data-theme="dark"] {
   --bg-primary: #050505;
   --bg-secondary: #0A0A0A;
   --bg-tertiary: #111111;
@@ -23,6 +23,9 @@
   --selection-bg: rgba(255, 255, 255, 0.15);
   --selection-text: #FFFFFF;
   --capsule-bg: rgba(10, 10, 10, 0.6);
+  --accent-from: #3B82F6;
+  --accent-to: #8B5CF6;
+  --accent-glow: rgba(59, 130, 246, 0.15);
 }
 
 [data-theme="light"] {
@@ -39,11 +42,19 @@
   --selection-bg: rgba(0, 0, 0, 0.1);
   --selection-text: #000000;
   --capsule-bg: rgba(255, 255, 255, 0.7);
+  --accent-from: #2563EB;
+  --accent-to: #7C3AED;
+  --accent-glow: rgba(37, 99, 235, 0.1);
 }
 
 @layer base {
-  * {
-    transition: background-color 0.4s ease, color 0.3s ease, border-color 0.3s ease;
+  /* Smooth theme transitions — targeted, not global */
+  body, .capsule, .model-card, .poe-card, section, nav, footer,
+  [data-theme] {
+    transition: background-color 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.4s ease;
   }
 
   html {
@@ -71,17 +82,31 @@
 }
 
 @layer utilities {
-  /* Noise Texture Overlay */
+  /* Animated Noise Texture Overlay */
   .bg-noise {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
     pointer-events: none;
     z-index: 9999;
     opacity: var(--noise-opacity);
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    animation: grain 4s steps(6) infinite;
+  }
+
+  @keyframes grain {
+    0%, 100% { transform: translate(0, 0); }
+    10% { transform: translate(-5%, -10%); }
+    20% { transform: translate(-15%, 5%); }
+    30% { transform: translate(7%, -15%); }
+    40% { transform: translate(-5%, 15%); }
+    50% { transform: translate(-15%, 10%); }
+    60% { transform: translate(15%, 0%); }
+    70% { transform: translate(0%, 10%); }
+    80% { transform: translate(3%, -15%); }
+    90% { transform: translate(-10%, 5%); }
   }
 
   /* Grid Pattern */
@@ -90,6 +115,34 @@
     background-image:
       linear-gradient(to right, var(--border-primary) 1px, transparent 1px),
       linear-gradient(to bottom, var(--border-primary) 1px, transparent 1px);
+  }
+
+  /* Accent gradient for buttons */
+  .btn-accent {
+    background: linear-gradient(135deg, var(--accent-from), var(--accent-to));
+    color: #FFFFFF;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-accent::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--accent-to), var(--accent-from));
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .btn-accent:hover::before {
+    opacity: 1;
+  }
+  .btn-accent > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Accent line for section tags */
+  .accent-line {
+    background: linear-gradient(90deg, var(--accent-from), var(--accent-to));
   }
 
   /* 3D Tilt Card Container */
@@ -119,5 +172,75 @@
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  /* Marquee animation — faster */
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .animate-marquee {
+    animation: marquee 12s linear infinite;
+  }
+
+  /* Reveal mask animation */
+  .reveal-mask {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  /* Horizontal scroll section */
+  .horizontal-scroll-section {
+    overflow-x: hidden;
+  }
+
+  /* Text scramble character */
+  .scramble-char {
+    display: inline-block;
+    min-width: 0.3em;
+  }
+
+  /* Counter accent text */
+  .text-accent {
+    background: linear-gradient(135deg, var(--accent-from), var(--accent-to));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Glow effect behind accent elements */
+  .accent-glow {
+    box-shadow: 0 0 60px var(--accent-glow), 0 0 120px var(--accent-glow);
+  }
+
+  /* Gradient border on hover for cards */
+  .card-gradient-border {
+    position: relative;
+  }
+  .card-gradient-border::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, var(--accent-from), var(--accent-to));
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask-composite: xor;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+  .card-gradient-border:hover::after {
+    opacity: 1;
+  }
+
+  /* Marquee hover accent */
+  .marquee-accent:hover {
+    background: linear-gradient(135deg, var(--accent-from), var(--accent-to));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    opacity: 1 !important;
   }
 }
