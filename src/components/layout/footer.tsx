@@ -118,8 +118,8 @@ export default function Footer() {
           style={{ borderTop: '1px solid var(--border-primary)', color: 'var(--text-muted)' }}
         >
           <p>© {new Date().getFullYear()} WEATSO. {t('footer', 'rights')}</p>
-          <div className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: 'var(--accent-from)' }} />
+          <div className="flex items-center gap-2">
+            <div className="h-[1px] w-4" style={{ background: 'linear-gradient(90deg, var(--accent-from), var(--accent-to))' }} />
             <span className="uppercase tracking-widest">Semarang, ID</span>
           </div>
         </div>

@@ -29,32 +29,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [theme, mounted])
 
   const toggleTheme = useCallback(() => {
-    // Create a flash overlay for smooth transition
-    const overlay = document.createElement('div')
-    overlay.style.cssText = `
-      position: fixed; inset: 0; z-index: 99999;
-      background: ${theme === 'dark' ? '#F9F9F9' : '#050505'};
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.3s ease;
-    `
-    document.body.appendChild(overlay)
-
-    // Fade in overlay
-    requestAnimationFrame(() => {
-      overlay.style.opacity = '0.6'
-    })
-
-    // Switch theme while overlay covers the page
-    setTimeout(() => {
-      setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
-
-      // Fade out overlay
-      setTimeout(() => {
-        overlay.style.opacity = '0'
-        setTimeout(() => overlay.remove(), 350)
-      }, 100)
-    }, 250)
-  }, [theme])
+    // Instant switch — CSS handles the 0.3s transition
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
+  }, [])
 
   // Prevent flash of wrong theme
   if (!mounted) {

@@ -4,7 +4,6 @@ import { useRef, useEffect, useState, useCallback, MouseEvent as RMouseEvent } f
 import Link from 'next/link'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { Flip } from 'gsap/Flip'
 import { useGSAP } from '@gsap/react'
 import { useLanguage } from '@/lib/i18n'
 import { useTheme } from '@/lib/theme'
@@ -14,87 +13,13 @@ import SplitTextBlock from '@/lib/split-text'
 import TextScramble from '@/lib/text-scramble'
 import { useMagnetic } from '@/lib/magnetic'
 
-gsap.registerPlugin(ScrollTrigger, Flip)
+gsap.registerPlugin(ScrollTrigger)
 
 /* ============================================================
    DATA
    ============================================================ */
 
-const proprietaryProjects = [
-  {
-    name: 'Anugerah Ventures',
-    tag: 'Corporate Investment Platform',
-    tagId: 'Platform Investasi Korporat',
-    image: '/images/thumbnail-anugerah.webp',
-    url: 'https://anugerahventures.com',
-  },
-  {
-    name: 'Laddify',
-    tag: 'SaaS Growth Platform',
-    tagId: 'Platform Pertumbuhan SaaS',
-    image: '/images/thumbnail-laddify.webp',
-    url: '#',
-  },
-  {
-    name: 'Evory',
-    tag: 'Digital Wedding Ecosystem',
-    tagId: 'Ekosistem Pernikahan Digital',
-    image: '/images/thumbnail-evory.png',
-    url: 'https://evory.id',
-  },
-  {
-    name: 'Lokal',
-    tag: 'Local Commerce Platform',
-    tagId: 'Platform Perdagangan Lokal',
-    image: '/images/thumbnail-lokal.webp',
-    url: 'https://pakalilokal.com',
-  },
-]
-
-const clientProjects = [
-  {
-    name: 'Nugiartawidagdo',
-    tag: 'Furniture & Interior Design',
-    tagId: 'Furnitur & Desain Interior',
-    image: '/images/thumbnail-nugi.webp',
-    url: 'https://desain-interior.vercel.app/',
-  },
-  {
-    name: 'Radeva',
-    tag: 'Wedding Organizer',
-    tagId: 'Wedding Organizer',
-    image: '/images/thumbnail-radeva.webp',
-    url: 'https://radeva-landing-page.vercel.app/',
-  },
-  {
-    name: 'WeThinkParty',
-    tag: 'Event Organizer',
-    tagId: 'Event Organizer',
-    image: '/images/thumbnail-wtp.png',
-    url: 'https://wtp-landing-page-linktree-farrell.vercel.app/',
-  },
-  {
-    name: 'UD Dokar',
-    tag: 'Printing & Packaging',
-    tagId: 'Percetakan & Kemasan',
-    image: '/images/thumbnail-dokar.webp',
-    url: 'https://uddokar.vercel.app/login',
-  },
-  {
-    name: 'Tangwin Cut',
-    tag: 'Barbershop',
-    tagId: 'Barbershop',
-    image: '/images/thumbnail-tangwin.png',
-    url: '#',
-  },
-]
-
-const allProjects = [...clientProjects, ...proprietaryProjects].map((p) => ({
-  ...p,
-  archDesc: 'Full-stack architecture built on Next.js, PostgreSQL, and Redis cache layer. Microservices deployed via Docker on managed Kubernetes cluster with auto-scaling policies.',
-  techStack: 'Next.js · TypeScript · PostgreSQL · Redis · Docker · Kubernetes',
-  link: p.url || '#',
-}))
+import { allProjects, clientProjects, proprietaryProjects } from '@/lib/data'
 
 const partnerLogos = [
   { name: 'Anugerah Ventures', abbr: 'AV' },
@@ -220,11 +145,20 @@ function HeroSection() {
         <div ref={ctaRef} style={{ opacity: 0 }}>
           <Link
             href="/initiate"
-            className="btn-accent group inline-flex items-center gap-3 px-8 py-4 rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-300 hover:scale-105"
+            id="hero-cta-btn"
+            className="btn-accent group inline-flex items-center gap-3 px-8 py-4 rounded-full text-sm font-bold uppercase tracking-wider"
+            onMouseEnter={(e) => {
+              const arrow = e.currentTarget.querySelector('.hero-arrow') as HTMLElement
+              if (arrow) gsap.to(arrow, { x: 4, y: -4, duration: 0.25, ease: 'power2.out' })
+            }}
+            onMouseLeave={(e) => {
+              const arrow = e.currentTarget.querySelector('.hero-arrow') as HTMLElement
+              if (arrow) gsap.to(arrow, { x: 0, y: 0, duration: 0.25, ease: 'power2.out' })
+            }}
           >
             <span>{t('cta', 'button') as string}</span>
             <svg
-              className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1"
+              className="hero-arrow w-4 h-4"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -401,42 +335,69 @@ function IPModelsSection() {
 
 function CoreAdvantages() {
   const ref = useRef<HTMLElement>(null)
-  const textRef = useRef<HTMLHeadingElement>(null)
-  const indexRef = useRef(0)
+  const textRef = useRef<HTMLDivElement>(null)
+  const indicatorsRef = useRef<HTMLDivElement>(null)
   const { t, locale } = useLanguage()
 
   const slides = (t('core', 'slides') as unknown as string[]) || []
 
   useGSAP(() => {
-    gsap.fromTo(ref.current?.querySelectorAll('.ca-line') || [], { y: 40, opacity: 0 }, {
+    if (!ref.current || !textRef.current || slides.length <= 1) return
+
+    const textContainer = textRef.current
+    const slideEls = textContainer.querySelectorAll('.ca-slide')
+    const indicatorEls = indicatorsRef.current?.querySelectorAll('.ca-indicator')
+
+    // Entrance animation
+    gsap.fromTo(ref.current.querySelectorAll('.ca-line'), { y: 40, opacity: 0 }, {
       y: 0, opacity: 1, stagger: 0.15, duration: 0.8, ease: 'power3.out',
       scrollTrigger: { trigger: ref.current, start: 'top 80%', once: true },
     })
-  }, { scope: ref })
 
-  useEffect(() => {
-    if (!textRef.current || slides.length <= 1) return
-    const interval = setInterval(() => {
-      indexRef.current = (indexRef.current + 1) % slides.length
-      const el = textRef.current
-      if (!el) return
+    // Setup auto-swapping timeline
+    const tl = gsap.timeline({ repeat: -1 })
 
-      gsap.to(el, {
-        opacity: 0, y: -20, duration: 0.4, ease: 'power2.in',
-        onComplete: () => {
-          el.textContent = slides[indexRef.current]
-          gsap.fromTo(el, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' })
-        },
+    // Initialize all slides to hidden, first to visible
+    gsap.set(slideEls, { opacity: 0, y: 20 })
+    gsap.set(slideEls[0], { opacity: 1, y: 0 })
+
+    slides.forEach((_, i) => {
+      const nextI = (i + 1) % slides.length
+      const currentSlide = slideEls[i]
+      const nextSlide = slideEls[nextI]
+
+      // Hold slide for 3 seconds
+      tl.to({}, { duration: 3 })
+
+      // Animate out current slide
+      tl.to(currentSlide, { opacity: 0, y: -20, duration: 0.4, ease: 'power2.in' })
+
+      // Update indicators
+      tl.call(() => {
+        if (indicatorEls) {
+          indicatorEls.forEach((ind, idx) => {
+            gsap.to(ind, {
+              backgroundColor: idx === nextI ? 'var(--accent-from)' : 'var(--border-primary)',
+              duration: 0.3,
+            })
+          })
+        }
       })
-    }, 4000)
-    return () => clearInterval(interval)
-  }, [slides, locale])
+
+      // Set next slide position before animating in
+      tl.set(nextSlide, { y: 20, opacity: 0 })
+      
+      // Animate in next slide
+      tl.to(nextSlide, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' })
+    })
+
+    return () => { tl.kill() }
+  }, { scope: ref, dependencies: [slides, locale] })
 
   return (
-    <section ref={ref} id="core" className="py-24 md:py-32 scroll-mt-24" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="ca-line mb-8 flex items-center gap-3">
-          <div className="h-[1px] w-8 accent-line" />
+    <section ref={ref} id="core" className="scroll-mt-24 py-24 md:py-32" style={{ backgroundColor: 'var(--bg-primary)' }}>
+      <div className="max-w-7xl mx-auto px-6 w-full">
+        <div className="ca-line mb-8">
           <TextScramble
             text={t('core', 'line1') as string}
             as="span"
@@ -444,20 +405,31 @@ function CoreAdvantages() {
             style={{ color: 'var(--text-muted)' }}
           />
         </div>
-        <div className="ca-line max-w-5xl min-h-[4em] md:min-h-[3em]">
-          <h2
-            ref={textRef}
-            className="text-3xl md:text-5xl lg:text-6xl font-heading font-black tracking-tighter leading-[1.1]"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            {slides[0] || ''}
-          </h2>
+        {/* Stacked slides — grid ensures container height matches the tallest slide automatically */}
+        <div ref={textRef} className="ca-line max-w-5xl grid relative">
+          {slides.map((slide, i) => (
+            <h2
+              key={`${locale}-${i}`}
+              className="ca-slide text-3xl md:text-5xl lg:text-6xl font-heading font-black tracking-tighter leading-[1.1]"
+              style={{
+                gridArea: '1 / 1',
+                color: 'var(--text-primary)',
+                opacity: i === 0 ? 1 : 0,
+              }}
+            >
+              {slide}
+            </h2>
+          ))}
         </div>
 
         {/* Slide indicators */}
-        <div className="ca-line flex gap-2 mt-6">
+        <div ref={indicatorsRef} className="ca-line flex gap-2 mt-10">
           {slides.map((_, i) => (
-            <div key={i} className="w-8 h-[2px] rounded-full" style={{ backgroundColor: i === 0 ? 'var(--accent-from)' : 'var(--border-primary)' }} />
+            <div
+              key={i}
+              className="ca-indicator w-8 h-[2px] rounded-full"
+              style={{ backgroundColor: i === 0 ? 'var(--accent-from)' : 'var(--border-primary)' }}
+            />
           ))}
         </div>
       </div>
@@ -529,114 +501,122 @@ function StatsSection() {
    PARTNER GRID (Strategic Engagements)
    ============================================================ */
 
-function PartnerMarquee() {
+function PartnerGrid() {
   const { t } = useLanguage()
-  const logos = [...partnerLogos, ...partnerLogos]
+
+  const handleLogoEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+    gsap.to(e.currentTarget, {
+      opacity: 1,
+      filter: 'grayscale(0%) brightness(1)',
+      duration: 0.35,
+      ease: 'power2.out',
+    })
+  }
+
+  const handleLogoLeave = (e: React.MouseEvent<HTMLDivElement>) => {
+    gsap.to(e.currentTarget, {
+      opacity: 0.2,
+      filter: 'grayscale(100%) brightness(0.6)',
+      duration: 0.4,
+      ease: 'power2.out',
+    })
+  }
 
   return (
-    <section className="py-10 md:py-14 overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)', borderTop: '1px solid var(--border-primary)', borderBottom: '1px solid var(--border-primary)' }}>
-      <div className="flex items-center gap-3 mb-8 px-6 max-w-7xl mx-auto">
-        <div className="h-[1px] w-8 accent-line" />
-        <span className="text-xs font-bold uppercase tracking-[0.3em]" style={{ color: 'var(--text-muted)' }}>{t('partners', 'tag') as string}</span>
-      </div>
-      <div className="marquee-track flex gap-16 md:gap-24 animate-marquee whitespace-nowrap">
-        {logos.map((p, i) => (
-          <span key={`${p.name}-${i}`} className="text-2xl md:text-3xl font-heading font-black tracking-tighter opacity-20 transition-all duration-500 cursor-default flex-shrink-0 marquee-accent" style={{ color: 'var(--text-primary)' }}>{p.name}</span>
-        ))}
+    <section
+      style={{
+        backgroundColor: 'var(--bg-primary)',
+        borderTop: '1px solid var(--border-primary)',
+        borderBottom: '1px solid var(--border-primary)',
+      }}
+    >
+      <div className="max-w-7xl mx-auto px-6 py-10 md:py-14">
+        <div className="flex items-center gap-3 mb-10">
+          <div className="h-[1px] w-8 accent-line" />
+          <span className="text-xs font-bold uppercase tracking-[0.3em]" style={{ color: 'var(--text-muted)' }}>
+            {t('partners', 'tag') as string}
+          </span>
+        </div>
+        <div className="grid grid-cols-3 md:grid-cols-6 border-l border-t" style={{ borderColor: 'var(--border-primary)' }}>
+          {partnerLogos.map((p) => (
+            <div
+              key={p.name}
+              onMouseEnter={handleLogoEnter}
+              onMouseLeave={handleLogoLeave}
+              className="partner-logo-item border-r border-b px-6 py-8 flex items-center justify-center cursor-default"
+              style={{
+                borderColor: 'var(--border-primary)',
+                opacity: 0.2,
+                filter: 'grayscale(100%) brightness(0.6)',
+                willChange: 'opacity, filter',
+              }}
+            >
+              <span
+                className="text-base md:text-xl font-heading font-black tracking-tighter text-center select-none"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                {p.name}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   )
 }
 
-/* ============================================================
-   POE SECTION (Cinematic Flip Takeover)
-   ============================================================ */
-
 function POESection() {
   const sectionRef = useRef<HTMLElement>(null)
-  const carouselRef = useRef<HTMLDivElement>(null)
-  const takeoverRef = useRef<HTMLDivElement>(null)
-  const takeoverImgRef = useRef<HTMLImageElement>(null)
-  const takeoverContentRef = useRef<HTMLDivElement>(null)
-  const tlRef = useRef<gsap.core.Timeline | null>(null)
-  const [activeProject, setActiveProject] = useState<typeof allProjects[0] | null>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
   const { t, locale } = useLanguage()
 
-  const handleScrollCarousel = useCallback((direction: 'left' | 'right') => {
-    if (!carouselRef.current) return
-    const scrollAmount = 360
-    carouselRef.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' })
-  }, [])
-
   useGSAP(() => {
-    const cards = sectionRef.current?.querySelectorAll('.poe-card')
-    if (!cards) return
-    gsap.fromTo(cards, { y: 60, opacity: 0 }, {
-      y: 0, opacity: 1, stagger: 0.1, duration: 0.8, ease: 'power3.out',
-      scrollTrigger: { trigger: sectionRef.current, start: 'top 70%', once: true },
-    })
-  }, { scope: sectionRef })
+    // GSAP MatchMedia for responsive animations
+    const mm = gsap.matchMedia()
 
-  const handleCardClick = useCallback((project: typeof allProjects[0]) => {
-    const cardEl = document.querySelector(`[data-project="${project.name}"]`) as HTMLElement
-    if (!cardEl || !takeoverRef.current || !takeoverImgRef.current || !takeoverContentRef.current) return
+    // Desktop: Pinned Horizontal Scroll
+    mm.add("(min-width: 768px)", () => {
+      const section = sectionRef.current
+      const track = trackRef.current
+      if (!section || !track) return
 
-    setActiveProject(project)
-    const rect = cardEl.getBoundingClientRect()
-    const img = takeoverImgRef.current
-    const content = takeoverContentRef.current
+      const trackWidth = track.scrollWidth
+      const viewportWidth = window.innerWidth
+      
+      // If the track is wider than the viewport, calculate distance to scroll
+      const distance = trackWidth > viewportWidth ? trackWidth - viewportWidth + 64 : 0
 
-    document.body.style.overflow = 'hidden'
-    gsap.set(takeoverRef.current, { display: 'flex', pointerEvents: 'auto' })
-    gsap.set(content, { opacity: 0, y: 40 })
-
-    const tl = gsap.timeline()
-    tl.fromTo(img,
-      { position: 'fixed', left: rect.left, top: rect.top, width: rect.width, height: rect.height, borderRadius: 16, zIndex: 51 },
-      { left: 0, top: 0, width: '100vw', height: '100vh', borderRadius: 0, duration: 0.8, ease: 'power4.inOut' }
-    )
-    tl.to(content, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, '-=0.2')
-    tlRef.current = tl
-  }, [])
-
-  const handleClose = useCallback(() => {
-    if (!tlRef.current || !takeoverRef.current) return
-    tlRef.current.reverse()
-    tlRef.current.eventCallback('onReverseComplete', () => {
-      gsap.set(takeoverRef.current!, { display: 'none', pointerEvents: 'none' })
-      document.body.style.overflow = ''
-      setActiveProject(null)
-      tlRef.current = null
-    })
-  }, [])
-
-  const handleNavigate = useCallback((direction: 'next' | 'prev') => {
-    if (!activeProject || !takeoverContentRef.current || !takeoverImgRef.current) return
-    const currentIndex = allProjects.findIndex(p => p.name === activeProject.name)
-    if (currentIndex === -1) return
-
-    let nextIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1
-    if (nextIndex >= allProjects.length) nextIndex = 0
-    if (nextIndex < 0) nextIndex = allProjects.length - 1
-
-    const nextProj = allProjects[nextIndex]
-
-    gsap.to([takeoverContentRef.current, takeoverImgRef.current], {
-      opacity: 0,
-      duration: 0.3,
-      onComplete: () => {
-        setActiveProject(nextProj)
-        gsap.to([takeoverContentRef.current, takeoverImgRef.current], { opacity: 1, duration: 0.4 })
+      if (distance > 0) {
+        gsap.to(track, {
+          x: -distance,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top top',
+            end: `+=${distance}`,
+            pin: true,
+            scrub: 0.5,
+          }
+        })
       }
     })
-  }, [activeProject])
+
+    // Mobile: Simple Entrance Fade
+    mm.add("(max-width: 767px)", () => {
+      gsap.fromTo(trackRef.current?.querySelectorAll('.poe-card') || [], { y: 30, opacity: 0 }, {
+        y: 0, opacity: 1, stagger: 0.1, duration: 0.6, ease: 'power3.out',
+        scrollTrigger: { trigger: sectionRef.current, start: 'top 85%', once: true },
+      })
+    })
+
+    return () => mm.revert()
+  }, { scope: sectionRef })
 
   const renderCard = (project: typeof allProjects[0]) => (
-    <div key={project.name} className="perspective-container">
+    <a key={project.name} href={project.url || '#'} target="_blank" rel="noopener noreferrer" className="perspective-container block w-full h-full">
       <div data-project={project.name}
-        className="poe-card tilt-card card-gradient-border rounded-2xl overflow-hidden cursor-pointer group"
+        className="poe-card tilt-card card-gradient-border rounded-xl md:rounded-2xl overflow-hidden cursor-pointer group h-full flex flex-col"
         style={{ border: '1px solid var(--border-primary)' }}
-        onClick={() => handleCardClick(project)}
       >
         <div className="relative aspect-[16/10] overflow-hidden" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
           <img src={project.image} alt={project.name}
@@ -644,92 +624,60 @@ function POESection() {
             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
           />
         </div>
-        <div className="p-5" style={{ backgroundColor: 'var(--bg-card)' }}>
-          <h4 className="text-lg font-heading font-bold tracking-tight mb-1" style={{ color: 'var(--text-primary)' }}>{project.name}</h4>
-          <p className="text-xs font-medium uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+        <div className="p-3 md:p-5 flex-1 flex flex-col justify-center" style={{ backgroundColor: 'var(--bg-card)' }}>
+          <h4 className="text-sm md:text-lg font-heading font-bold tracking-tight md:mb-1 line-clamp-1" style={{ color: 'var(--text-primary)' }}>{project.name}</h4>
+          <p className="text-[9px] md:text-xs font-medium uppercase tracking-widest line-clamp-1" style={{ color: 'var(--text-muted)' }}>
             {locale === 'id' ? project.tagId : project.tag}
           </p>
         </div>
       </div>
-    </div>
+    </a>
   )
 
   return (
-    <>
-      <section ref={sectionRef} id="portfolio" className="py-24 md:py-32 scroll-mt-24" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="mb-16 md:mb-20">
-            <div className="flex items-center gap-3 mb-6">
+    <section ref={sectionRef} id="portfolio" className="py-20 md:py-24 overflow-hidden" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+      <div className="max-w-7xl mx-auto px-6 w-full">
+        <div className="mb-10 md:mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <div className="flex items-center gap-3 mb-4 md:mb-6">
               <div className="h-[1px] w-8 accent-line" />
               <span className="text-xs font-bold uppercase tracking-[0.3em]" style={{ color: 'var(--text-muted)' }}>{t('poe', 'sectionTag') as string}</span>
             </div>
+            <h3 className="text-3xl md:text-5xl lg:text-6xl font-heading font-black tracking-tighter" style={{ color: 'var(--text-primary)' }}>{t('poe', 'clientTitle') as string}</h3>
           </div>
-          <div className="mb-20">
-            <div className="flex items-center justify-between mb-10">
-              <h3 className="text-3xl md:text-4xl font-heading font-black tracking-tighter" style={{ color: 'var(--text-primary)' }}>{t('poe', 'clientTitle') as string}</h3>
-              <div className="flex items-center gap-2">
-                <button onClick={() => handleScrollCarousel('left')} className="w-10 h-10 rounded-full border flex items-center justify-center hover:bg-white/5 transition-colors" style={{ borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }} aria-label="Slide left">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
-                </button>
-                <button onClick={() => handleScrollCarousel('right')} className="w-10 h-10 rounded-full border flex items-center justify-center hover:bg-white/5 transition-colors" style={{ borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }} aria-label="Slide right">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
-                </button>
-              </div>
-            </div>
-            {/* Horizontal Carousel for Client Projects */}
-            <div ref={carouselRef} className="flex overflow-x-auto gap-5 pb-8 snap-x snap-mandatory no-scrollbar" style={{ maskImage: 'linear-gradient(to right, black 90%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to right, black 90%, transparent 100%)' }}>
-              {allProjects.slice(0, 5).map((project) => (
-                <div key={project.name} className="w-[280px] md:w-[340px] flex-shrink-0 snap-start">
-                  {renderCard(project)}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="w-full h-[1px] mb-20" style={{ backgroundColor: 'var(--border-primary)' }} />
-          <div>
-            <h3 className="text-3xl md:text-4xl font-heading font-black tracking-tighter mb-3" style={{ color: 'var(--text-primary)' }}>{t('poe', 'propTitle') as string}</h3>
-            <p className="text-sm leading-relaxed mb-10 max-w-2xl" style={{ color: 'var(--text-muted)' }}>{t('poe', 'propSubtext') as string}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {allProjects.slice(5).map(renderCard)}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Cinematic Takeover Overlay */}
-      <div ref={takeoverRef} className="fixed inset-0 z-50" style={{ display: 'none', pointerEvents: 'none' }}>
-        <img ref={takeoverImgRef} src={activeProject?.image || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'} alt={activeProject?.name || ''} className="object-cover" style={{ position: 'fixed' }} />
-        <div ref={takeoverContentRef} className="fixed inset-0 z-[52] flex flex-col justify-end p-6 pb-10 md:p-16" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, transparent 100%)' }}>
-          <button onClick={handleClose} className="absolute top-4 right-4 md:top-10 md:right-10 w-12 h-12 md:w-14 md:h-14 rounded-full border border-white/20 flex items-center justify-center text-white text-xl md:text-2xl font-light hover:bg-white/10 transition-colors" aria-label="Close">✕</button>
-          <div className="max-w-3xl">
-            <h3 className="text-3xl md:text-6xl font-heading font-black tracking-tighter text-white mb-3 md:mb-4">{activeProject?.name}</h3>
-            <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] text-white/50 mb-4 md:mb-6">{t('poe', 'archLabel') as string}</p>
-            <p className="text-white/70 text-xs md:text-base leading-relaxed mb-4 md:mb-6 max-w-2xl">{activeProject?.archDesc}</p>
-            <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] text-white/50 mb-2">{t('poe', 'snapshotLabel') as string}</p>
-            <p className="text-white/80 text-xs md:text-sm mb-6 md:mb-8">{activeProject?.techStack}</p>
-            <div className="flex flex-wrap gap-3">
-              <a href={activeProject?.link || '#'} target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 md:px-6 md:py-3 rounded-full border border-white/20 text-white text-xs md:text-sm font-bold uppercase tracking-wider hover:bg-white/10 transition-colors">
-                {t('poe', 'linkLabel') as string} →
-              </a>
-              <button onClick={handleClose}
-                className="inline-flex items-center gap-2 px-5 py-2.5 md:px-6 md:py-3 rounded-full border border-white/20 text-white text-xs md:text-sm font-bold uppercase tracking-wider hover:bg-white/10 transition-colors">
-                ← {t('poe', 'close') as string}
-              </button>
-              
-              <div className="ml-auto flex items-center gap-2">
-                <button onClick={() => handleNavigate('prev')} className="w-10 h-10 md:w-12 md:h-12 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white/10 transition-colors" aria-label="Previous Project">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
-                </button>
-                <button onClick={() => handleNavigate('next')} className="w-10 h-10 md:w-12 md:h-12 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white/10 transition-colors" aria-label="Next Project">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
-                </button>
-              </div>
-            </div>
-          </div>
+          <Link href="/portfolio" className="hidden md:inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest hover:opacity-70 transition-opacity" style={{ color: 'var(--accent-from)' }}>
+            View All Portfolios →
+          </Link>
         </div>
       </div>
-    </>
+
+      {/* Track: Grid on mobile (cols-2), Flex row on desktop */}
+      <div className="max-w-7xl mx-auto md:pl-6">
+        <div ref={trackRef} className="grid grid-cols-2 gap-3 px-6 md:px-0 md:flex md:flex-row md:gap-6 md:w-max">
+          {allProjects.slice(0, 5).map((project) => (
+            <div key={project.name} className="w-full md:w-[400px] lg:w-[480px] md:flex-shrink-0">
+              {renderCard(project)}
+            </div>
+          ))}
+          {/* Desktop 'View All' spacer/card at the end of scroll */}
+          <div className="hidden md:flex items-center justify-center w-[200px] lg:w-[280px] flex-shrink-0 pr-6">
+            <Link href="/portfolio" className="group flex flex-col items-center gap-3 p-6 rounded-2xl border border-dashed transition-colors" style={{ borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}>
+              <div className="w-12 h-12 rounded-full border flex items-center justify-center transition-colors group-hover:bg-white/5" style={{ borderColor: 'var(--border-primary)' }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </div>
+              <span className="text-xs font-bold uppercase tracking-widest text-center">See All</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* Mobile View All Link */}
+        <div className="mt-8 px-6 flex justify-center md:hidden">
+          <Link href="/portfolio" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-6 py-3 rounded-full border transition-colors" style={{ color: 'var(--text-primary)', borderColor: 'var(--border-primary)' }}>
+            View All Portfolios →
+          </Link>
+        </div>
+      </div>
+    </section>
   )
 }
 
@@ -803,9 +751,9 @@ function VerdictSection() {
             >
               {/* Large Photo Area */}
               <div className="relative h-52 md:h-56 overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--accent-from), var(--accent-to))' }}>
-                {item.image && (
+                {item.ownerImage && (
                   <img
-                    src={item.image}
+                    src={item.ownerImage}
                     alt={item.name}
                     className="w-full h-full object-cover"
                     onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
@@ -814,7 +762,7 @@ function VerdictSection() {
                 {/* Gradient overlay for readability */}
                 <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, var(--bg-card) 0%, transparent 60%)' }} />
                 {/* Fallback initials */}
-                {!item.image && (
+                {!item.ownerImage && (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-6xl font-heading font-black text-white/30">{item.initials}</span>
                   </div>
@@ -822,8 +770,7 @@ function VerdictSection() {
               </div>
 
               {/* Content */}
-              <div className="p-6 pt-0 -mt-4 relative z-10 flex flex-col flex-grow">
-                <div className="text-3xl font-heading font-black text-accent mb-2">"</div>
+              <div className="p-6 pt-4 relative z-10 flex flex-col flex-grow">
                 <p className="text-sm leading-relaxed mb-6 flex-grow" style={{ color: 'var(--text-secondary)' }}>
                   {locale === 'id' ? item.quote.id : item.quote.en}
                 </p>
@@ -931,13 +878,14 @@ function CTASection() {
 
       <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
         <div className="cta-animate flex items-center justify-center gap-3 mb-8">
-          <div className="w-2 h-2 rounded-full animate-pulse accent-glow" style={{ backgroundColor: 'var(--accent-from)' }} />
+          <div className="h-[1px] w-6 accent-line" />
           <span
             className="text-xs font-bold uppercase tracking-[0.3em]"
             style={{ color: 'var(--text-muted)' }}
           >
             {t('cta', 'tag') as string}
           </span>
+          <div className="h-[1px] w-6 accent-line" />
         </div>
 
         <h2
@@ -957,11 +905,20 @@ function CTASection() {
         <div className="cta-animate">
           <Link
             href="/initiate"
-            className="btn-accent group inline-flex items-center gap-3 px-10 py-5 rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-300 hover:scale-105"
+            id="cta-section-btn"
+            className="btn-accent group inline-flex items-center gap-3 px-10 py-5 rounded-full text-sm font-bold uppercase tracking-wider"
+            onMouseEnter={(e) => {
+              const arrow = e.currentTarget.querySelector('.cta-arrow') as HTMLElement
+              if (arrow) gsap.to(arrow, { x: 4, y: -4, duration: 0.25, ease: 'power2.out' })
+            }}
+            onMouseLeave={(e) => {
+              const arrow = e.currentTarget.querySelector('.cta-arrow') as HTMLElement
+              if (arrow) gsap.to(arrow, { x: 0, y: 0, duration: 0.25, ease: 'power2.out' })
+            }}
           >
             <span>{t('cta', 'button') as string}</span>
             <svg
-              className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1"
+              className="cta-arrow w-4 h-4"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -970,6 +927,51 @@ function CTASection() {
               <path d="M7 17L17 7M17 7H7M17 7V17" />
             </svg>
           </Link>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function EcosystemSection() {
+  const { t, locale } = useLanguage()
+
+  const renderCard = (project: typeof proprietaryProjects[0] & { archDesc?: string, techStack?: string }) => (
+    <a key={project.name} href={project.url || '#'} target="_blank" rel="noopener noreferrer" className="perspective-container block w-full h-full">
+      <div data-project={project.name}
+        className="poe-card tilt-card card-gradient-border rounded-xl md:rounded-2xl overflow-hidden cursor-pointer group h-full flex flex-col"
+        style={{ border: '1px solid var(--border-primary)' }}
+      >
+        <div className="relative aspect-[16/10] overflow-hidden" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
+          <img src={project.image} alt={project.name}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+          />
+        </div>
+        <div className="p-3 md:p-5 flex-1 flex flex-col justify-center" style={{ backgroundColor: 'var(--bg-card)' }}>
+          <h4 className="text-sm md:text-lg font-heading font-bold tracking-tight md:mb-1 line-clamp-1" style={{ color: 'var(--text-primary)' }}>{project.name}</h4>
+          <p className="text-[9px] md:text-xs font-medium uppercase tracking-widest line-clamp-1" style={{ color: 'var(--text-muted)' }}>
+            {locale === 'id' ? project.tagId : project.tag}
+          </p>
+        </div>
+      </div>
+    </a>
+  )
+
+  return (
+    <section className="py-20 md:py-24" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+      <div className="max-w-7xl mx-auto px-6 w-full">
+        <div className="w-full h-[1px] mb-20" style={{ backgroundColor: 'var(--border-primary)' }} />
+        <div>
+          <h3 className="text-3xl md:text-4xl font-heading font-black tracking-tighter mb-3" style={{ color: 'var(--text-primary)' }}>{t('poe', 'propTitle') as string}</h3>
+          <p className="text-sm leading-relaxed mb-10 max-w-2xl" style={{ color: 'var(--text-muted)' }}>{t('poe', 'propSubtext') as string}</p>
+          <div className="grid grid-cols-2 gap-3 md:flex md:flex-wrap md:justify-center md:gap-6">
+            {allProjects.slice(5).map((project) => (
+              <div key={project.name} className="w-full md:w-[400px] lg:w-[480px]">
+                {renderCard(project)}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -986,11 +988,12 @@ export default function Home() {
       <div className="bg-noise" />
       <Navbar />
       <HeroSection />
-      <PartnerMarquee />
+      <PartnerGrid />
       <StatsSection />
       <CoreAdvantages />
       <IPModelsSection />
       <POESection />
+      <EcosystemSection />
       <VerdictSection />
       <CTASection />
       <Footer />
