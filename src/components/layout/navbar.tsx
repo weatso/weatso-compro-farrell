@@ -273,7 +273,6 @@ export default function Navbar() {
         </div>
         <div className="absolute bottom-12 left-8 right-8 flex justify-between items-end pt-6" style={{ borderTop: '1px solid var(--border-primary)' }}>
           <div className="flex flex-col gap-2 text-xs tracking-widest uppercase" style={{ color: 'var(--text-muted)' }}>
-            <span>hello@weatso.com</span>
             <span>Semarang, Indonesia</span>
           </div>
         </div>
