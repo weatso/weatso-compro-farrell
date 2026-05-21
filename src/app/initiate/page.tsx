@@ -45,7 +45,7 @@ export default function InitiatePage() {
 
   if (submitted) {
     return (
-      <div ref={containerRef} className="h-screen relative overflow-hidden flex flex-col items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
+      <div ref={containerRef} className="min-h-screen relative overflow-x-hidden flex flex-col items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
         <div className="bg-noise" />
         <div className="absolute inset-0 bg-grid-pattern opacity-20" />
         <div className="relative z-10 text-center max-w-lg px-6">
@@ -69,15 +69,11 @@ export default function InitiatePage() {
   }
 
   return (
-    <div ref={containerRef} className="h-screen relative overflow-hidden flex flex-col" style={{ backgroundColor: 'var(--bg-primary)', opacity: 0 }}>
+    <div ref={containerRef} className="min-h-screen relative overflow-x-hidden flex flex-col" style={{ backgroundColor: 'var(--bg-primary)', opacity: 0 }}>
       <div className="bg-noise" />
       <div className="absolute inset-0 bg-grid-pattern opacity-20" />
 
-      {/* Back link */}
-      <Link href="/" className="absolute top-6 left-6 z-20 flex items-center gap-2 text-xs font-bold uppercase tracking-widest transition-opacity hover:opacity-70" style={{ color: 'var(--text-muted)' }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        {t('initiate', 'back') as string}
-      </Link>
+      <div className="absolute inset-0 bg-grid-pattern opacity-20" />
 
       {/* 2-Column Layout */}
       <div className="flex-1 flex flex-col lg:flex-row items-stretch relative z-10 pt-16 lg:pt-0">
@@ -94,7 +90,7 @@ export default function InitiatePage() {
         </div>
 
         {/* Right: Form */}
-        <div className="lg:w-[60%] flex flex-col justify-center px-6 lg:px-16 py-6 lg:py-10 overflow-y-auto no-scrollbar" style={{ borderLeft: '1px solid var(--border-primary)' }}>
+        <div className="lg:w-[60%] flex flex-col justify-center px-6 lg:px-16 py-6 lg:py-24" style={{ borderLeft: '1px solid var(--border-primary)' }}>
           {/* Identity */}
           <div className="form-field mb-5">
             <p className="text-xs font-bold uppercase tracking-[0.2em] mb-3 text-accent">01 — {t('initiate', 'step1Label') as string}</p>

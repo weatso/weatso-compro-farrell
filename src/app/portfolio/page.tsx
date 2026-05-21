@@ -5,7 +5,6 @@ import Link from 'next/link'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { useLanguage } from '@/lib/i18n'
-import Navbar from '@/components/layout/navbar'
 import Footer from '@/components/layout/footer'
 import { allProjects } from '@/lib/data'
 
@@ -23,14 +22,12 @@ export default function PortfolioPage() {
       stagger: 0.1,
       duration: 0.8,
       ease: 'power3.out',
-      delay: 0.2, // Wait for navbar entrance slightly
+      delay: 0.1,
     })
   }, { scope: containerRef })
 
   return (
-    <main className="min-h-screen pt-32 pb-20 selection:bg-accent selection:text-black font-sans" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      <Navbar />
-
+    <main className="min-h-screen pt-32 pb-20 selection:bg-accent selection:text-black font-sans relative" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <div ref={containerRef} className="max-w-7xl mx-auto px-6 w-full">
         {/* Header */}
         <div className="mb-16 md:mb-24">
@@ -74,13 +71,6 @@ export default function PortfolioPage() {
               </div>
             </a>
           ))}
-        </div>
-        
-        {/* Back Button */}
-        <div className="mt-20 flex justify-center">
-          <Link href="/#portfolio" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-8 py-4 rounded-full border transition-colors hover:bg-white/5" style={{ color: 'var(--text-primary)', borderColor: 'var(--border-primary)' }}>
-            ← Back to Home
-          </Link>
         </div>
       </div>
       

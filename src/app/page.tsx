@@ -889,7 +889,7 @@ function CTASection() {
         </div>
 
         <h2
-          className="cta-animate text-5xl md:text-7xl lg:text-8xl font-heading font-black tracking-tighter leading-[0.9] mb-8 whitespace-pre-line"
+          className="cta-animate text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-heading font-black tracking-tighter leading-[0.9] mb-8 whitespace-pre-line break-words w-full px-2"
           style={{ color: 'var(--text-primary)' }}
         >
           {t('cta', 'headline') as string}
@@ -984,7 +984,7 @@ function EcosystemSection() {
 
 export default function Home() {
   return (
-    <main className="min-h-screen relative">
+    <main className="min-h-screen relative overflow-x-hidden w-full">
       <div className="bg-noise" />
       <Navbar />
       <HeroSection />
