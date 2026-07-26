@@ -31,13 +31,6 @@ export const proprietaryProjects = [
 
 export const clientProjects = [
   {
-    name: 'Nugiartawidagdo',
-    tag: 'Furniture & Interior Design',
-    tagId: 'Furnitur & Desain Interior',
-    image: '/images/thumbnail-nugi.webp',
-    url: 'https://desain-interior.vercel.app/',
-  },
-  {
     name: 'Radeva',
     tag: 'Wedding Organizer',
     tagId: 'Wedding Organizer',

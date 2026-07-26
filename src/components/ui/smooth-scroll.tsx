@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { usePathname } from "next/navigation";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -12,7 +13,12 @@ export default function SmoothScrollProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+
   useEffect(() => {
+    // Disable Lenis on Sanity Studio to avoid scroll hijack
+    if (pathname?.startsWith('/studio')) return;
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -30,7 +36,7 @@ export default function SmoothScrollProvider({
     return () => {
       lenis.destroy();
     };
-  }, []);
+  }, [pathname]);
 
   return <>{children}</>;
 }

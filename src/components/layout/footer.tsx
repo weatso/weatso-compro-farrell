@@ -34,7 +34,7 @@ export default function Footer() {
           <div className="max-w-md">
             <Link href="/" className="block mb-4">
               <img
-                src="/weatso.svg"
+                src="/logo/weatso_white_nobg.webp"
                 alt="WEATSO"
                 className="h-8"
                 style={{ filter: isDark ? 'brightness(0) invert(1)' : 'brightness(0)' }}

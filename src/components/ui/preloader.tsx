@@ -80,7 +80,7 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
       <div className="absolute inset-0 flex items-center justify-center z-10">
         <img
           ref={logoRef}
-          src="/weatso.svg"
+          src="/logo/weatso_white_nobg.webp"
           alt="WEATSO"
           className="w-40 md:w-56 select-none pointer-events-none"
           style={{

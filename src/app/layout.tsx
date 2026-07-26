@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import SmoothScrollProvider from "@/components/ui/smooth-scroll";
 import { LanguageProvider } from "@/lib/i18n";
@@ -7,21 +7,16 @@ import { ThemeProvider } from "@/lib/theme";
 import PreloaderWrapper from "@/components/ui/preloader-wrapper";
 import FloatingLogo from "@/components/ui/floating-logo";
 
-const inter = Inter({
-  variable: "--font-inter",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-sans",
   subsets: ["latin"],
-  display: "swap",
-});
-
-const outfit = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "WEATSO — Rekayasa Solusi Digital Tanpa Kompromi",
+    default: "WEATSO",
     template: "%s | WEATSO",
   },
   description:
@@ -54,17 +49,17 @@ export const metadata: Metadata = {
     type: "website",
     locale: "id_ID",
     siteName: "WEATSO",
-    title: "WEATSO — Rekayasa Solusi Digital Tanpa Kompromi",
+    title: "WEATSO",
     description:
       "Software house Semarang yang membangun ekosistem digital kelas enterprise. Managed Ecosystem & True Bespoke — arsitektur kustom, kepemilikan penuh.",
   },
   icons: {
     icon: [
-      { url: "/logo/logo_weatso_biru.svg", type: "image/svg+xml" },
-      { url: "/logo/logo_weatso_biru.png", type: "image/png" },
+      { url: "/logo/weatso_ico.ico", type: "image/x-icon" },
+      { url: "/logo/weatso_ico.ico", type: "image/x-icon" },
     ],
-    shortcut: "/logo/logo_weatso_biru.svg",
-    apple: "/logo/logo_weatso_biru.png",
+    shortcut: "/logo/weatso_ico.ico",
+    apple: "/logo/weatso_ico.ico",
   },
 };
 
@@ -77,7 +72,7 @@ export default function RootLayout({
     <html
       lang="id"
       data-theme="dark"
-      className={`${inter.variable} ${outfit.variable}`}
+      className={spaceGrotesk.variable}
       suppressHydrationWarning
     >
       <body className="antialiased font-sans">

@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-heading: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-sans), 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-sans), 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
 }
 
 /* ============================================
@@ -75,8 +75,9 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-heading);
+    font-family: var(--font-sans), 'Space Grotesk', sans-serif;
     letter-spacing: -0.03em;
+    font-weight: 600;
   }
 }
 
