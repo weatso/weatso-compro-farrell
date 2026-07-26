@@ -11,14 +11,17 @@ import { useTheme } from '@/lib/theme'
 gsap.registerPlugin(ScrollTrigger)
 
 const navLinks = [
-  { id: 'principle', href: '#core' },
-  { id: 'models', href: '#models' },
-  { id: 'portfolio', href: '#portfolio' },
-  { id: 'verdict', href: '#verdict' },
+  { id: 'principle', href: '/#core' },
+  { id: 'models', href: '/#models' },
+  { id: 'portfolio', href: '/portofolio' },
+  { id: 'verdict', href: '/#verdict' },
 ]
 
 function smoothScroll(href: string) {
-  const el = document.querySelector(href)
+  const hashIndex = href.indexOf('#')
+  if (hashIndex === -1) return
+  const hash = href.substring(hashIndex)
+  const el = document.querySelector(hash)
   if (el) {
     const y = el.getBoundingClientRect().top + window.scrollY - 20
     window.scrollTo({ top: y, behavior: 'smooth' })
@@ -129,7 +132,7 @@ export default function Navbar() {
         {/* Single pill — always centered */}
         <div
           ref={pillRef}
-          className="pointer-events-auto flex items-center gap-1 px-4 py-2 rounded-full"
+          className="pointer-events-auto flex items-center gap-1 px-5 py-2.5 rounded-full"
           style={{
             opacity: 0,
             width: 'fit-content',
@@ -140,18 +143,6 @@ export default function Navbar() {
             boxShadow: '0 4px 32px rgba(0,0,0,0.25)',
           }}
         >
-          {/* Mobile Logo (Always visible, even when scrolled) */}
-          <Link href="/" className="md:hidden flex-shrink-0 mr-1 flex items-center">
-            <img
-              src="/logo/logo_weatso_biru.svg"
-              alt="WEATSO"
-              style={{
-                filter: isDark ? 'none' : 'brightness(0.85)',
-                height: 22,
-                transition: 'filter 0.3s ease',
-              }}
-            />
-          </Link>
 
           {/* ── Extras group: desktop logo + lang + theme (hidden when scrolling) ── */}
           <div
@@ -159,21 +150,6 @@ export default function Navbar() {
             className="flex items-center gap-1 overflow-visible"
             style={{ width: 'auto', opacity: 1 }}
           >
-            {/* Desktop Logo */}
-            <Link href="/" className="hidden md:flex flex-shrink-0 mr-1">
-              <img
-                src="/logo/logo_weatso_biru.svg"
-                alt="WEATSO"
-                style={{
-                  filter: isDark ? 'none' : 'brightness(0.85)',
-                  height: 22,
-                  transition: 'filter 0.3s ease',
-                }}
-              />
-            </Link>
-
-            {/* Divider */}
-            <span className="w-[1px] h-4 mx-1 flex-shrink-0" style={{ backgroundColor: 'var(--border-primary)' }} />
 
             {/* Language */}
             <button onClick={() => setLocale('id')} className="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-200"
@@ -197,10 +173,15 @@ export default function Navbar() {
           {/* ── Nav links (always visible) ── */}
           <div className="hidden md:flex items-center gap-0.5">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.id}
                 href={link.href}
-                onClick={(e) => { e.preventDefault(); smoothScroll(link.href) }}
+                onClick={(e) => { 
+                  if (window.location.pathname === '/' && link.href.includes('#')) {
+                    e.preventDefault(); 
+                    smoothScroll(link.href) 
+                  }
+                }}
                 className="px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-widest whitespace-nowrap rounded-full transition-colors duration-150"
                 style={{ color: 'var(--text-secondary)' }}
                 onMouseEnter={(e) => {
@@ -213,7 +194,7 @@ export default function Navbar() {
                 }}
               >
                 {t('nav', link.id as any)}
-              </a>
+              </Link>
             ))}
           </div>
 
@@ -257,11 +238,19 @@ export default function Navbar() {
         <div ref={mobileLinksRef} className="flex flex-col gap-6 mt-8">
           {navLinks.map((link, i) => (
             <div key={link.id} style={{ opacity: 0 }}>
-              <a href={link.href} onClick={(e) => { e.preventDefault(); setIsMobileOpen(false); setTimeout(() => smoothScroll(link.href), 500) }}
+              <Link href={link.href} onClick={(e) => { 
+                  if (window.location.pathname === '/' && link.href.includes('#')) {
+                    e.preventDefault(); 
+                    setIsMobileOpen(false); 
+                    setTimeout(() => smoothScroll(link.href), 500) 
+                  } else {
+                    setIsMobileOpen(false);
+                  }
+                }}
                 className="flex items-baseline gap-4 text-5xl font-black font-heading tracking-tighter" style={{ color: 'var(--text-primary)' }}>
                 <span className="text-xs font-mono tracking-widest" style={{ color: 'var(--text-muted)' }}>0{i + 1}</span>
                 {t('nav', link.id as any)}
-              </a>
+              </Link>
             </div>
           ))}
           <div style={{ opacity: 0 }}>

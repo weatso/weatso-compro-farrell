@@ -26,7 +26,6 @@ const partnerLogos = [
   { name: 'WeThinkParty', abbr: 'WTP' },
   { name: 'Radeva', abbr: 'RDV' },
   { name: 'UD Dokar', abbr: 'UDD' },
-  { name: 'Nugiartawidagdo', abbr: 'NAW' },
   { name: 'Evory', abbr: 'EVR' },
 ]
 
